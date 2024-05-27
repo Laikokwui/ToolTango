@@ -32,7 +32,12 @@ export default function AddEquipmentModal() {
     const handleClose = () => setOpen(false);
 
     const handleSubmit = async () => {
-        const newErrors = {};
+        const newErrors = {
+            name: string,
+            select1: string,
+            select2: string,
+            quantity: string,
+        };
 
         if (!nameValue) newErrors.name = "Name is required";
         if (!select1Value) newErrors.select1 = "Condition is required";
