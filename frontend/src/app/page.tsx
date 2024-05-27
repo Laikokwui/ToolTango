@@ -10,12 +10,14 @@ export default function Home() {
         { label: 'Damaged', value: 10 },
     ];
 
+	const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 	return (
 		<div className="flex h-screen">
 			<SideMenu />
 			<div className="flex-1 p-10">
 				<div className="flex justify-between items-center mb-4">
-					<h2 className="text-3xl">Dashboard</h2>
+					<h2 className="text-3xl">Dashboard {apiUrl}</h2>
 				</div>
 
 				<Paper className="p-4 mb-4">
