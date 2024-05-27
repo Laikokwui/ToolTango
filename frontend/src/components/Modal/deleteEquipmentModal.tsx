@@ -4,8 +4,11 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/
 const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
     const handleDelete = () => {
         onDelete();
-        onClose();
+        handleClose();
     };
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     return (
         <div className="mb-5">
@@ -15,12 +18,6 @@ const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
             >
                 <DeleteIcon className="size-5" />
             </IconButton>
-            <button 
-                onClick={() => handleOpenDialog('Item 1')} 
-                className="text-red-600 hover:text-red-800 transition-colors duration-200"
-            >
-                <DeleteIcon />
-            </button>
             <Dialog open={open} onClose={onClose} classes={{ paper: 'rounded-lg p-4' }}>
                 <DialogTitle className="text-2xl font-bold text-gray-800">Delete Confirmation</DialogTitle>
                 <DialogContent className="text-gray-600">
@@ -28,7 +25,7 @@ const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
                 </DialogContent>
                 <DialogActions className="flex justify-end p-4">
                     <Button 
-                        onClick={onClose} 
+                        onClick={handleClose} 
                         className="px-4 py-2 rounded-md mr-2 text-gray-600 bg-transparent hover:bg-gray-100 transition-colors duration-200"
                     >
                         Cancel
