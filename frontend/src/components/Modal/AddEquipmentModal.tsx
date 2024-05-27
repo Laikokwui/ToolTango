@@ -24,7 +24,12 @@ export default function AddEquipmentModal() {
     const [select2Value, setSelect2Value] = useState('');
     const [nameValue, setNameValue] = useState('');
     const [quantityValue, setQuantityValue] = useState(1);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({
+        name: '',
+        select1: '',
+        select2: '',
+        quantity: '',
+    });
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
