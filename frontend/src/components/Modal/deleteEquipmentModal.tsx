@@ -9,6 +9,12 @@ const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
 
     return (
         <div className="mb-5">
+            <IconButton
+                onClick={handleOpen}
+                className="text-red-600 border-red-600 p-0 text-base"
+            >
+                <DeleteIcon className="size-5" />
+            </IconButton>
             <button 
                 onClick={() => handleOpenDialog('Item 1')} 
                 className="text-red-600 hover:text-red-800 transition-colors duration-200"
