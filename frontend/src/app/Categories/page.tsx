@@ -1,5 +1,14 @@
 import SideMenu from "@/components/sidemenu";
 import CategoriesTable from "@/components/Table/categoriesTable";
+import axios from "axios";
+
+const getCategories = async ()=> {
+	try {
+		const response = await axios.get('/api/categories');
+	} catch (error) {
+		throw new Error("error fetch equipmnts")
+	}
+}
 
 export default function Equipments() {
 	return (

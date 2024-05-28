@@ -60,7 +60,7 @@ export default function AddEquipmentModal() {
         setSubmitError('');
 
         try {
-            const response = await axios.post('/api/equipment', {
+            const response = await axios.post('/api/equipments', {
                 name: nameValue,
                 condition: select1Value,
                 quantity: quantityValue,
