@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import {
     Table, 
     TableBody, 
@@ -28,37 +31,47 @@ interface Categories {
     name: string
 }
 
-interface EquipmentTableProps {
-    equipments: Equipment[];
-    categories: Categories[];
-}
+const EquipmentTable = () => {
+    const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
+	const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
 
-const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
+    // pagination
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    // search query
     const [searchQuery, setSearchQuery] = useState<string>("");
+
+    // filter table
     const [filterType, setFilterType] = useState<string>("");
     const [filterTypeId, setFilterTypeId] = useState<number | string>("-1");
 
+    // pagination set page
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
 
+    // pagination chnage number of rows
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
 
+    // change search query
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value);
     };
 
+
+    // get category name by id
     const getCategoryNameById = (categoryId: number): string => {
-        const category = data.categories.find(category => category.id === categoryId);
+        const category = categoriesList.find(category => category.id === categoryId);
 
         return category ? category.name : " ";
     };
 
+
+    // set filter
     const handleFilterChange = (event: SelectChangeEvent<string>) => {
         const selectedValue = event.target.value;
 
@@ -76,10 +89,36 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
         }
     };
 
-    const filteredRows = data.equipments.filter(row =>
+    // filter list of data
+    const filteredRows = equipmentList.filter(row =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         (filterType === "" || row.categoryId === filterTypeId)
     );
+
+    // get equipments
+    const getEquipments = async ()=> {
+		try {
+			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipment');
+			setEquipmentList(response.data)
+		} catch (error) {
+			throw new Error("error fetch equipmnts")
+		}
+	}
+
+    // get categories
+	const getCategories = async ()=> {
+		try {
+			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
+			setCategoriesList(response.data)
+		} catch (error) {
+			throw new Error("error fetch categories")
+		}
+	}
+
+	useEffect(() => {
+		getEquipments();
+		getCategories();
+	}, []);
 
     return (
         <Paper className="p-4">
@@ -99,7 +138,7 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
                         className="min-w-[150px]"
                     >
                         <MenuItem value="-1">All Types</MenuItem>
-                        {data.categories.map(item => (
+                        {categoriesList.map(item => (
                             <MenuItem key={item.id} value={item.id}>
                                 {item.name}
                             </MenuItem>
@@ -133,7 +172,7 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
                                             name: row.name,
                                             condition: row.condition,
                                             quantity: row.quantity,
-                                            type: getCategoryNameById(row.categoryId)
+                                            categoryId: row.categoryId
                                         }}/>
                                         <div className="ml-2">
                                             <DeleteEquipmentModal equipment={{

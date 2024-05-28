@@ -1,26 +1,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableContainer, 
+    TableHead, 
+    TableRow, 
+    Paper, 
+    IconButton 
+} from '@mui/material';
 import { TablePagination } from '@mui/material';
 
-const createData = (
+interface Categories {
+    id: number,
     name: string
-) => ({ 
-    name 
-});
+}
 
-const categories = [
-    createData('Category A'),
-    createData('Category B'),
-    createData('Category C'),
-    createData('Category D'),
-    createData('Category E'),
-    // Add more categories as needed
-];
+interface CategoriesTableProps {
+    categories: Categories[];
+}
 
-const CategoriesTable = () => {
+const CategoriesTable: React.FC<{ data: CategoriesTableProps }> = ({data}) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -43,7 +45,7 @@ const CategoriesTable = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {categories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((category, index) => (
+                        {data.categories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((category, index) => (
                             <TableRow key={index}>
                                 <TableCell>{category.name}</TableCell>
                             </TableRow>
@@ -52,7 +54,7 @@ const CategoriesTable = () => {
                 </Table>
                 <TablePagination
                     component="div"
-                    count={categories.length}
+                    count={data.categories.length}
                     page={page}
                     onPageChange={handleChangePage}
                     rowsPerPage={rowsPerPage}

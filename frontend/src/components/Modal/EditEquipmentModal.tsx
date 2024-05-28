@@ -16,35 +16,39 @@ import {
     SelectChangeEvent
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+
 interface EquipmentProps {
     id: number;
     name: string;
     condition: string;
     quantity: number;
-    type: string;
+    categoryId: number;
+}
+
+interface Categories {
+    id: number,
+    name: string
 }
 
 const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}) => {
     const [open, setOpen] = useState(false);
-    const [conditionValue, setConditionValue] = useState<string|any>(equipment.condition);
-    const [categoryValue, setCategoryValue] = useState<string>(equipment.type);
+
     const [nameValue, setNameValue] = useState<string>(equipment.name);
+    const [conditionValue, setConditionValue] = useState<string|any>(equipment.condition);
     const [quantityValue, setQuantityValue] = useState<number>(equipment.quantity || 1);
+    const [categoryIdValue, setCategoryIdValue] = useState<number>(equipment.categoryId);
+
+    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+
     const [errors, setErrors] = useState({
         name: '',
-        select1: '',
-        select2: '',
+        condition: '',
         quantity: '',
+        categoryId: '',
     });
+
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
-
-    useEffect(() => {
-        setConditionValue(equipment.condition || '');
-        setCategoryValue(equipment.type || '');
-        setNameValue(equipment.name || '');
-        setQuantityValue(equipment.quantity || 1);
-    }, []);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -53,22 +57,39 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
         setConditionValue(event.target.value as string);
     };
 
+    const editEquipment = async (e:EquipmentProps) => {
+        try {
+            const response = await axios.put(`https://tooltangoapi.azurewebsites.net/api/equipment/${e.id}`, {
+                id: e.id,
+                name: nameValue,
+                condition: conditionValue,
+                quantity: quantityValue,
+                categoryId: categoryIdValue
+            });
+
+            console.log('Updated:', response.data);
+            handleClose();
+            return true;
+        } catch (error) {
+            setSubmitError('Failed to update the form. Please try again.');
+            console.error('Update error:', error);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
         const newErrors = {
-            name: '',
-            select1: '',
-            select2: '',
-            quantity: '',
+            name: nameValue ? '' : 'Name is required',
+            condition: conditionValue ? '' : 'Condition is required',
+            quantity: quantityValue > 0 ? '' : 'Quantity must be greater than 0',
+            categoryId: categoryIdValue ? '' : 'CategoryId is required',
         };
 
-        if (!nameValue) newErrors.name = "Name is required";
-        if (!conditionValue) newErrors.select1 = "Condition is required";
-        if (!categoryValue) newErrors.select2 = "Category is required";
-        if (quantityValue <= 0) newErrors.quantity = "Quantity must be greater than 0";
-
-        if (Object.keys(newErrors).length > 0) {
+        if (Object.values(newErrors).some(error => error)) {
             setErrors(newErrors);
             return;
         }
@@ -77,24 +98,55 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
         console.log("Edit Item")
         setSubmitError('');
 
-        try {
-            const response = await axios.put(`/api/equipment/${equipment.id}`, {
-                id: equipment.id,
-                name: nameValue,
-                condition: conditionValue,
-                quantity: quantityValue,
-                category: categoryValue
-            });
+        setLoading(true);
+        setSubmitError('');
 
-            console.log('Updated:', response.data);
+        console.log({
+            id: equipment.id,
+            name: nameValue,
+            condition: conditionValue,
+            quantity: quantityValue,
+            categoryId: categoryIdValue
+        })
+
+        let result = await editEquipment({
+            id: equipment.id,
+            name: nameValue,
+            condition: conditionValue,
+            quantity: quantityValue,
+            categoryId: categoryIdValue
+        })
+
+        if (result) {
             handleClose();
-        } catch (error) {
-            setSubmitError('Failed to update the form. Please try again.');
-            console.error('Update error:', error);
-        } finally {
+            setLoading(false);
+            window.location.reload();
+        } else {
+            setSubmitError('Failed to submit the form. Please try again.');
+            console.error('Submit error:', errors);
             setLoading(false);
         }
+
+        
     };
+
+    const getCategories = async () => {
+        try {
+            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
+            setCategoriesList(response.data)
+        } catch (error) {
+            throw new Error("error fetch categories")
+        }
+    }
+
+    useEffect(() => {
+        setNameValue(equipment.name || '');
+        setConditionValue(equipment.condition || '');
+        setQuantityValue(equipment.quantity || 1);
+        setCategoryIdValue(equipment.categoryId);
+        
+        getCategories();
+    }, []);
 
     return (
         <div className="mb-5">
@@ -110,8 +162,6 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
                         Edit Equipment
                     </DialogTitle>
 
-                    {submitError && <FormHelperText error>{submitError}</FormHelperText>}
-
                     <FormControl fullWidth className="mb-4" error={!!errors.name}>
                         <TextField
                             label="Name"
@@ -124,7 +174,7 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
                         {errors.name && <FormHelperText>{errors.name}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl fullWidth className="mb-4" error={!!errors.select1}>
+                    <FormControl fullWidth className="mb-4" error={!!errors.condition}>
                         <InputLabel>Condition</InputLabel>
                         <Select
                             label="Condition"
@@ -137,7 +187,7 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
                             <MenuItem value="used">Used</MenuItem>
                             <MenuItem value="damaged">Damaged</MenuItem>
                         </Select>
-                        {errors.select1 && <FormHelperText>{errors.select1}</FormHelperText>}
+                        {errors.condition && <FormHelperText>{errors.condition}</FormHelperText>}
                     </FormControl>
 
                     <FormControl fullWidth className="mb-4" error={!!errors.quantity}>
@@ -154,21 +204,27 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
                         {errors.quantity && <FormHelperText>{errors.quantity}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl fullWidth className="mb-4" error={!!errors.select2}>
+                    <FormControl fullWidth className="mb-4" error={!!errors.categoryId}>
                         <InputLabel>Select Category</InputLabel>
                         <Select
                             label="Select Category"
-                            value={categoryValue}
-                            onChange={(e) => setCategoryValue(e.target.value)}
+                            value={categoryIdValue}
+                            onChange={(e) => setCategoryIdValue(Number(e.target.value))}
                             className="w-full"
                             variant="outlined"
                         >
-                            <MenuItem value="electronics">Electronics</MenuItem>
-                            <MenuItem value="furniture">Furniture</MenuItem>
-                            <MenuItem value="tools">Tools</MenuItem>
+                            {categoriesList.map(item => (
+                            <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                            </MenuItem>
+                            ))}
                         </Select>
-                        {errors.select2 && <FormHelperText>{errors.select2}</FormHelperText>}
+                        {errors.categoryId && <FormHelperText>{errors.categoryId}</FormHelperText>}
                     </FormControl>
+                    
+                    <br/>
+                    {submitError && <FormHelperText error>{submitError}</FormHelperText>}
+                    <br/>
 
                     <DialogActions className="mt-4 px-0 flex justify-between flex-row-reverse">
                         <Button 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { 
     Dialog, 
     DialogTitle, 
@@ -19,9 +20,26 @@ interface EquipmentProps {
 const DeleteEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}) => {
 
     const [open, setOpen] = useState(false);
-    const handleDelete = () => {
-        
-        handleClose();
+
+    const deleteEquipment = async (equipmentId: number) => {
+        try {
+            await axios.delete(`https://tooltangoapi.azurewebsites.net/api/equipment/${equipmentId}`);
+            return true;
+        } catch (error) {
+            // If there is an error, log it and return false
+            console.error('Error deleting equipment:', error);
+            return false;
+        }
+    };
+
+    const handleDelete = async () => {
+        let result = await deleteEquipment(equipment.id);
+        if (result) {
+            handleClose();
+            window.location.reload();
+        } else {
+            console.log("Error Delete Equipment")
+        }
     };
 
     const handleOpen = () => setOpen(true);

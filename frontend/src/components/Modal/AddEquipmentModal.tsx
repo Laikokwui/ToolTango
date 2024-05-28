@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import { 
     Dialog, 
@@ -18,63 +18,101 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
+interface EquipmentProps {
+    name: string;
+    condition: string;
+    quantity: number;
+    categoryId: number;
+}
+
+interface Categories {
+    id: number,
+    name: string
+}
+
 export default function AddEquipmentModal() {
     const [open, setOpen] = useState(false);
-    const [select1Value, setSelect1Value] = useState('');
-    const [select2Value, setSelect2Value] = useState('');
-    const [nameValue, setNameValue] = useState('');
-    const [quantityValue, setQuantityValue] = useState(1);
+
+    const [nameValue, setNameValue] = useState<string>('');
+    const [conditionValue, setConditionValue] = useState<string>('');
+    const [quantityValue, setQuantityValue] = useState<number>(1);
+    const [categoryIdValue, setCategoryIdValue] = useState<number>(-1);
+
+    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+
+    const getCategories = async () => {
+        try {
+            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
+            setCategoriesList(response.data)
+        } catch (error) {
+            throw new Error("error fetch categories")
+        }
+    }
+
+    useEffect(() => {
+		getCategories();
+	}, []);
+    
+
     const [errors, setErrors] = useState({
         name: '',
-        select1: '',
-        select2: '',
+        condition: '',
         quantity: '',
+        categoryId: '',
     });
+
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    const addEquipment = async (newEquipment:EquipmentProps) => {
+        try {
+          const response = await axios.post('https://tooltangoapi.azurewebsites.net/api/equipment', newEquipment);
+          return response.data; // Assuming the response contains the added equipment
+        } catch (error) {
+          console.error('Error adding equipment:', error);
+          throw error;
+        }
+    };
+
+
     const handleSubmit = async (e:any) => {
         e.preventDefault();
 
         const newErrors = {
-            name: '',
-            select1: '',
-            select2: '',
-            quantity: '',
+            name: nameValue ? '' : 'Name is required',
+            condition: conditionValue ? '' : 'Condition is required',
+            quantity: quantityValue > 0 ? '' : 'Quantity must be greater than 0',
+            categoryId: categoryIdValue ? '' : 'Category is required',
         };
-
-        if (!nameValue) newErrors.name = "Name is required";
-        if (!select1Value) newErrors.select1 = "Condition is required";
-        if (!select2Value) newErrors.select2 = "Category is required";
-        if (quantityValue <= 0) newErrors.quantity = "Quantity must be greater than 0";
-
-        if (Object.keys(newErrors).length > 0) {
+        
+        const hasErrors = Object.values(newErrors).some(error => error);
+        
+        if (hasErrors) {
             setErrors(newErrors);
             return;
         }
-
         console.log("Add Item")
 
         setLoading(true);
         setSubmitError('');
 
-        try {
-            const response = await axios.post('/api/equipments', {
-                name: nameValue,
-                condition: select1Value,
-                quantity: quantityValue,
-                category: select2Value
-            });
+        let result = await addEquipment({
+            name: nameValue,
+            condition: conditionValue,
+            quantity: quantityValue,
+            categoryId: categoryIdValue
+        })
 
-            console.log('Submitted:', response.data);
+        if (result) {
             handleClose();
-        } catch (error) {
+            setLoading(false);
+            window.location.reload();
+        } else {
             setSubmitError('Failed to submit the form. Please try again.');
-            console.error('Submit error:', error);
-        } finally {
+            console.error('Submit error:', errors);
             setLoading(false);
         }
     };
@@ -104,12 +142,12 @@ export default function AddEquipmentModal() {
                         {errors.name && <FormHelperText>{errors.name}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl fullWidth className="mb-4" error={!!errors.select1}>
+                    <FormControl fullWidth className="mb-4" error={!!errors.condition}>
                         <InputLabel>Condition</InputLabel>
                         <Select
                             label="Condition"
-                            value={select1Value}
-                            onChange={(e) => setSelect1Value(e.target.value)}
+                            value={conditionValue}
+                            onChange={(e) => setConditionValue(e.target.value)}
                             className="w-full"
                             variant="outlined"
                         >
@@ -117,7 +155,7 @@ export default function AddEquipmentModal() {
                             <MenuItem value="used">Used</MenuItem>
                             <MenuItem value="damaged">Damaged</MenuItem>
                         </Select>
-                        {errors.select1 && <FormHelperText>{errors.select1}</FormHelperText>}
+                        {errors.condition && <FormHelperText>{errors.condition}</FormHelperText>}
                     </FormControl>
 
                     <FormControl fullWidth className="mb-4" error={!!errors.quantity}>
@@ -134,20 +172,22 @@ export default function AddEquipmentModal() {
                         {errors.quantity && <FormHelperText>{errors.quantity}</FormHelperText>}
                     </FormControl>
 
-                    <FormControl fullWidth className="mb-4" error={!!errors.select2}>
+                    <FormControl fullWidth className="mb-4" error={!!errors.categoryId}>
                         <InputLabel>Select Category</InputLabel>
                         <Select
                             label="Select Category"
-                            value={select2Value}
-                            onChange={(e) => setSelect2Value(e.target.value)}
+                            value={categoryIdValue}
+                            onChange={(e) => setCategoryIdValue(Number(e.target.value))}
                             className="w-full"
                             variant="outlined"
                         >
-                            <MenuItem value="electronics">Electronics</MenuItem>
-                            <MenuItem value="furniture">Furniture</MenuItem>
-                            <MenuItem value="tools">Tools</MenuItem>
+                            {categoriesList.map(item => (
+                            <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                            </MenuItem>
+                            ))}
                         </Select>
-                        {errors.select2 && <FormHelperText>{errors.select2}</FormHelperText>}
+                        {errors.categoryId && <FormHelperText>{errors.categoryId}</FormHelperText>}
                     </FormControl>
 
                     <DialogActions className="mt-4 px-0 flex justify-between flex-row-reverse">

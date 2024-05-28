@@ -4,37 +4,9 @@ import React, { useState, useEffect } from 'react';
 import SideMenu from "@/components/sidemenu";
 import EquipmentTable from "@/components/Table/equipmentTable";
 import AddEquipmentModal from "@/components/Modal/AddEquipmentModal";
-import axios from "axios";
 
 
 export default function Equipments() {
-	const [equipmentList, setEquipmentList] = useState([]);
-	const [categoriesList, setCategoriesList] = useState([]);
-
-	const getEquipments = async ()=> {
-		try {
-			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipment');
-			setEquipmentList(response.data)
-		} catch (error) {
-			throw new Error("error fetch equipmnts")
-		}
-	}
-
-	const getCategories = async ()=> {
-		try {
-			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
-			setCategoriesList(response.data)
-		} catch (error) {
-			throw new Error("error fetch categories")
-		}
-	}
-
-	
-	useEffect(() => {
-		getEquipments();
-		getCategories();
-	}, []);
-
 	return (
 		<div className="flex h-screen">
 			<SideMenu />
@@ -43,10 +15,7 @@ export default function Equipments() {
 					<h2 className="text-3xl">Equipments</h2>
 					<AddEquipmentModal />
 				</div>
-				<EquipmentTable data={{
-					equipments: equipmentList,
-					categories: categoriesList
-				}} />
+				<EquipmentTable />
 			</div>
 		</div>
 	);
