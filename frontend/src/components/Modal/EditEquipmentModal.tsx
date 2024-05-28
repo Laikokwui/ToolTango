@@ -53,7 +53,9 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
         setConditionValue(event.target.value as string);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
         const newErrors = {
             name: '',
             select1: '',

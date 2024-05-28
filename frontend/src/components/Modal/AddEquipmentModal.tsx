@@ -36,7 +36,9 @@ export default function AddEquipmentModal() {
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e:any) => {
+        e.preventDefault();
+
         const newErrors = {
             name: '',
             select1: '',
