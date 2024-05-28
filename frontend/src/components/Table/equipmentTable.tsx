@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import {
     Table, 
@@ -22,7 +20,7 @@ interface Equipment {
     name: string,
     condition: string,
     quantity: number
-    type: string,
+    categoryId: number,
 }
 
 interface Categories {
@@ -40,6 +38,7 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [filterType, setFilterType] = useState<string>("");
+    const [filterTypeId, setFilterTypeId] = useState<number | string>("-1");
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -54,13 +53,32 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
         setSearchQuery(event.target.value);
     };
 
+    const getCategoryNameById = (categoryId: number): string => {
+        const category = data.categories.find(category => category.id === categoryId);
+
+        return category ? category.name : " ";
+    };
+
     const handleFilterChange = (event: SelectChangeEvent<string>) => {
-        setFilterType(event.target.value);
+        const selectedValue = event.target.value;
+
+        if (selectedValue !== "-1") {
+            const categoryId = parseInt(selectedValue);
+            setFilterTypeId(categoryId);
+            const filter = getCategoryNameById(categoryId);
+
+            if (filter !== " ") {
+                setFilterType(filter);
+            }
+        } else {
+            setFilterType("");
+            setFilterTypeId("-1");
+        }
     };
 
     const filteredRows = data.equipments.filter(row =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (filterType === "" || row.type === filterType)
+        (filterType === "" || row.categoryId === filterTypeId)
     );
 
     return (
@@ -74,15 +92,15 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
                 />
                 <div className="flex items-center space-x-4">
                     <Select
-                        value={filterType}
+                        value={filterTypeId.toString()}
                         onChange={handleFilterChange}
                         displayEmpty
                         variant="outlined"
                         className="min-w-[150px]"
                     >
-                        <MenuItem value="">All Types</MenuItem>
-                        {data.categories.map((item) => (
-                            <MenuItem key={item.id} value={item.name}>
+                        <MenuItem value="-1">All Types</MenuItem>
+                        {data.categories.map(item => (
+                            <MenuItem key={item.id} value={item.id}>
                                 {item.name}
                             </MenuItem>
                         ))}
@@ -107,7 +125,7 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.condition}</TableCell>
                                 <TableCell>{row.quantity}</TableCell>
-                                <TableCell>{row.type}</TableCell>
+                                <TableCell>{getCategoryNameById(row.categoryId)}</TableCell>
                                 <TableCell>
                                     <div className="flex">
                                         <EditEquipmentModal equipment={{
@@ -115,7 +133,7 @@ const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
                                             name: row.name,
                                             condition: row.condition,
                                             quantity: row.quantity,
-                                            type: row.type
+                                            type: getCategoryNameById(row.categoryId)
                                         }}/>
                                         <div className="ml-2">
                                             <DeleteEquipmentModal equipment={{

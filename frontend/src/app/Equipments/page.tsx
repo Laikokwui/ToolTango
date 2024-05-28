@@ -13,7 +13,7 @@ export default function Equipments() {
 
 	const getEquipments = async ()=> {
 		try {
-			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipments');
+			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipment');
 			setEquipmentList(response.data)
 		} catch (error) {
 			throw new Error("error fetch equipmnts")
@@ -32,6 +32,7 @@ export default function Equipments() {
 	
 	useEffect(() => {
 		getEquipments();
+		getCategories();
 	}, []);
 
 	return (
