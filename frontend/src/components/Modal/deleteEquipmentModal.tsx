@@ -1,9 +1,21 @@
-import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+'use client';
 
-const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
+import React, { useState } from 'react';
+import { 
+    Dialog, 
+    DialogTitle, 
+    DialogContent, 
+    DialogActions, 
+    Button, 
+    IconButton 
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+const DeleteEquipmentModal = ({ id }: { id: number }) => {
+    
+    const [open, setOpen] = useState(false);
     const handleDelete = () => {
-        onDelete();
+        
         handleClose();
     };
 
@@ -16,12 +28,12 @@ const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
                 onClick={handleOpen}
                 className="text-red-600 border-red-600 p-0 text-base"
             >
-                <DeleteIcon className="size-5" />
+                <DeleteIcon className="size-5 text-red-600" />
             </IconButton>
-            <Dialog open={open} onClose={onClose} classes={{ paper: 'rounded-lg p-4' }}>
+            <Dialog open={open} onClose={handleClose} classes={{ paper: 'rounded-lg p-4' }}>
                 <DialogTitle className="text-2xl font-bold text-gray-800">Delete Confirmation</DialogTitle>
                 <DialogContent className="text-gray-600">
-                    Are you sure you want to delete <span className="font-semibold">{data}</span>?
+                    Are you sure you want to delete <span className="font-semibold">{id}</span>?
                 </DialogContent>
                 <DialogActions className="flex justify-end p-4">
                     <Button 
@@ -42,4 +54,5 @@ const DeleteConfirmationDialog = ({ open, data, onClose, onDelete }) => {
     );
 };
 
-export default DeleteConfirmationDialog;
+export default DeleteEquipmentModal;
+

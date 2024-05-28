@@ -9,21 +9,30 @@ import {
     TableHead, 
     TableRow, 
     Paper, 
-    IconButton, 
     TextField, 
-    Button, 
     MenuItem, 
     Select
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { TablePagination, SelectChangeEvent } from '@mui/material';
+import EditEquipmentModal from '../Modal/EditEquipmentModal';
+import DeleteEquipmentModal from '../Modal/deleteEquipmentModal';
+
+interface Equipment {
+    id: number,
+    name: string,
+    condition: string,
+    quantity: number
+    type: string,
+}
 
 const createData = (
+    id: number,
     name: string,
     condition: string,
     quantity: number,
     type: string
 ) => ({
+    id,
     name,
     condition,
     quantity,
@@ -31,19 +40,18 @@ const createData = (
 });
 
 const rows = [
-    createData('Item A', 'New', 100, 'Hardware'),
-    createData('Item B', 'Used', 30, 'Software'),
-    createData('Item C', 'New', 50, 'Hardware'),
-    createData('Item D', 'Used', 2, 'Software'),
-    createData('Item E', 'Damaged', 20, 'Software'),
-    createData('Item F', 'Used', 12, 'Software'),
-    createData('Item G', 'New', 13, 'Hardware'),
-    createData('Item H', 'Used', 10, 'Software'),
-    createData('Item I', 'Used', 20, 'Hardware'),
-    createData('Item J', 'New', 5, 'Hardware'),
-    createData('Item K', 'Used', 2, 'Hardware'),
-    createData('Item L', 'Used', 4, 'Software'),
-    // Add more rows as needed
+    createData(1,'Item A', 'New', 100, 'Hardware'),
+    createData(2,'Item B', 'Used', 30, 'Software'),
+    createData(3,'Item C', 'New', 50, 'Hardware'),
+    createData(4,'Item D', 'Used', 2, 'Software'),
+    createData(5,'Item E', 'Damaged', 20, 'Software'),
+    createData(6,'Item F', 'Used', 12, 'Software'),
+    createData(7,'Item G', 'New', 13, 'Hardware'),
+    createData(8,'Item H', 'Used', 10, 'Software'),
+    createData(9,'Item I', 'Used', 20, 'Hardware'),
+    createData(10,'Item J', 'New', 5, 'Hardware'),
+    createData(11,'Item K', 'Used', 2, 'Hardware'),
+    createData(12,'Item L', 'Used', 4, 'Software'),
 ];
 
 export default function EquipmentTable () {
@@ -67,11 +75,6 @@ export default function EquipmentTable () {
 
     const handleFilterChange = (event: SelectChangeEvent<string>) => {
         setFilterType(event.target.value);
-    };
-
-    const handleAddClick = () => {
-        // Handle the Add button click
-        alert('Add button clicked');
     };
 
     const filteredRows = rows.filter(row =>
@@ -122,8 +125,12 @@ export default function EquipmentTable () {
                                 <TableCell>{row.quantity}</TableCell>
                                 <TableCell>{row.type}</TableCell>
                                 <TableCell>
-                                    <IconButton className='text-orange-600'><EditIcon /></IconButton>
-                                    <IconButton className='text-red-600'><DeleteIcon /></IconButton>
+                                    <div className="flex">
+                                        <EditEquipmentModal equipment={row}/>
+                                        <div className="ml-2">
+                                            <DeleteEquipmentModal id={row.id}/>
+                                        </div>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}

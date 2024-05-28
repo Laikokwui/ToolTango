@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
-export default function EditEquipmentModal({ equipment, onUpdate }) {
+const EditEquipmentModal = (equipment:any) => {
     const [open, setOpen] = useState(false);
     const [select1Value, setSelect1Value] = useState(equipment.condition || '');
     const [select2Value, setSelect2Value] = useState(equipment.category || '');
@@ -60,10 +60,12 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
         }
 
         setLoading(true);
+        console.log("Edit Item")
         setSubmitError('');
 
         try {
             const response = await axios.put(`/api/equipment/${equipment.id}`, {
+                id: equipment.id,
                 name: nameValue,
                 condition: select1Value,
                 quantity: quantityValue,
@@ -71,7 +73,6 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
             });
 
             console.log('Updated:', response.data);
-            onUpdate(response.data);
             handleClose();
         } catch (error) {
             setSubmitError('Failed to update the form. Please try again.');
@@ -83,13 +84,12 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
 
     return (
         <div className="mb-5">
-            <Button variant="outlined" className="text-orange-600 border-orange-600" onClick={handleOpen}>
-                <IconButton
-                    className="text-orange-600 border-orange-600 p-0 text-base"
-                >
-                    <EditIcon className="size-5" /> Edit
-                </IconButton>
-            </Button>
+            <IconButton
+                className="text-orange-600 border-orange-600 p-0 text-base"
+                onClick={handleOpen}
+            >
+                <EditIcon className="size-5" />
+            </IconButton>
             <Dialog open={open} onClose={handleClose} className="w-full">
                 <DialogContent className="bg-white text-black rounded-md w-1/2 m-0 w-full">
                     <DialogTitle className="text-xl font-bold text-gray-800 mb-6 pl-0">
@@ -99,8 +99,8 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
                     {submitError && <FormHelperText error>{submitError}</FormHelperText>}
 
                     <FormControl fullWidth className="mb-4" error={!!errors.name}>
-                        <InputLabel>Name</InputLabel>
                         <TextField
+                            label="Name"
                             value={nameValue}
                             onChange={(e) => setNameValue(e.target.value)}
                             className="w-full"
@@ -113,6 +113,7 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
                     <FormControl fullWidth className="mb-4" error={!!errors.select1}>
                         <InputLabel>Condition</InputLabel>
                         <Select
+                            label="Condition"
                             value={select1Value}
                             onChange={(e) => setSelect1Value(e.target.value)}
                             className="w-full"
@@ -120,7 +121,7 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
                         >
                             <MenuItem value="new">New</MenuItem>
                             <MenuItem value="used">Used</MenuItem>
-                            <MenuItem value="refurbished">Refurbished</MenuItem>
+                            <MenuItem value="damaged">Damaged</MenuItem>
                         </Select>
                         {errors.select1 && <FormHelperText>{errors.select1}</FormHelperText>}
                     </FormControl>
@@ -128,6 +129,7 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
                     <FormControl fullWidth className="mb-4" error={!!errors.quantity}>
                         <InputLabel shrink>Quantity</InputLabel>
                         <TextField
+                            label="Quantity"
                             type="number"
                             value={quantityValue}
                             onChange={(e) => setQuantityValue(parseInt(e.target.value, 10) || 0)}
@@ -141,6 +143,7 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
                     <FormControl fullWidth className="mb-4" error={!!errors.select2}>
                         <InputLabel>Select Category</InputLabel>
                         <Select
+                            label="Select Category"
                             value={select2Value}
                             onChange={(e) => setSelect2Value(e.target.value)}
                             className="w-full"
@@ -168,3 +171,5 @@ export default function EditEquipmentModal({ equipment, onUpdate }) {
         </div>
     );
 }
+
+export default EditEquipmentModal;

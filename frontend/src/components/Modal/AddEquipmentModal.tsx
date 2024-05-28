@@ -54,6 +54,8 @@ export default function AddEquipmentModal() {
             return;
         }
 
+        console.log("Add Item")
+
         setLoading(true);
         setSubmitError('');
 
@@ -77,12 +79,8 @@ export default function AddEquipmentModal() {
 
     return (
         <div className="mb-5">
-            <Button variant="outlined" className="text-orange-600 border-orange-600" onClick={handleOpen}>
-                <IconButton
-                    className="text-orange-600 border-orange-600 p-0 text-base"
-                >
-                    <AddIcon className="size-5" />  Add
-                </IconButton>
+            <Button variant="outlined" className="text-orange-600 border-orange-600 text-base" onClick={handleOpen}>
+                <AddIcon className="size-5" />  Add
             </Button>
             <Dialog open={open} onClose={handleClose} className="w-full">
                 <DialogContent className="bg-white text-black rounded-md w-1/2 m-0 w-full">
@@ -93,8 +91,8 @@ export default function AddEquipmentModal() {
                     {submitError && <FormHelperText error>{submitError}</FormHelperText>}
 
                     <FormControl fullWidth className="mb-4" error={!!errors.name}>
-                        <InputLabel>Name</InputLabel>
                         <TextField
+                            label="Name"
                             value={nameValue}
                             onChange={(e) => setNameValue(e.target.value)}
                             className="w-full"
@@ -107,6 +105,7 @@ export default function AddEquipmentModal() {
                     <FormControl fullWidth className="mb-4" error={!!errors.select1}>
                         <InputLabel>Condition</InputLabel>
                         <Select
+                            label="Condition"
                             value={select1Value}
                             onChange={(e) => setSelect1Value(e.target.value)}
                             className="w-full"
@@ -114,7 +113,7 @@ export default function AddEquipmentModal() {
                         >
                             <MenuItem value="new">New</MenuItem>
                             <MenuItem value="used">Used</MenuItem>
-                            <MenuItem value="refurbished">Refurbished</MenuItem>
+                            <MenuItem value="damaged">Damaged</MenuItem>
                         </Select>
                         {errors.select1 && <FormHelperText>{errors.select1}</FormHelperText>}
                     </FormControl>
@@ -122,6 +121,7 @@ export default function AddEquipmentModal() {
                     <FormControl fullWidth className="mb-4" error={!!errors.quantity}>
                         <InputLabel shrink>Quantity</InputLabel>
                         <TextField
+                            label="Quantity"
                             type="number"
                             value={quantityValue}
                             onChange={(e) => setQuantityValue(parseInt(e.target.value, 10) || 0)}
@@ -135,6 +135,7 @@ export default function AddEquipmentModal() {
                     <FormControl fullWidth className="mb-4" error={!!errors.select2}>
                         <InputLabel>Select Category</InputLabel>
                         <Select
+                            label="Select Category"
                             value={select2Value}
                             onChange={(e) => setSelect2Value(e.target.value)}
                             className="w-full"
