@@ -1,11 +1,16 @@
 {
   "dependencies": {
     "secrets1": {
-      "type": "secrets"
+      "ignored": "true",
+      "type": "secrets.keyVault"
+    },
+    "apis1": {
+      "ignored": "true",
+      "type": "apis.azure"
     },
     "mssql1": {
       "type": "mssql",
-      "connectionId": "tcp:tooltango.database.windows.net,1433",
+      "connectionId": "ConnectionStrings:DefaultConnection",
       "dynamicId": null
     }
   }
