@@ -25,36 +25,17 @@ interface Equipment {
     type: string,
 }
 
-const createData = (
+interface Categories {
     id: number,
-    name: string,
-    condition: string,
-    quantity: number,
-    type: string
-) => ({
-    id,
-    name,
-    condition,
-    quantity,
-    type,
-});
+    name: string
+}
 
-const rows = [
-    createData(1,'Item A', 'new', 100, 'Hardware'),
-    createData(2,'Item B', 'used', 30, 'Software'),
-    createData(3,'Item C', 'new', 50, 'Hardware'),
-    createData(4,'Item D', 'used', 2, 'Software'),
-    createData(5,'Item E', 'damaged', 20, 'Software'),
-    createData(6,'Item F', 'used', 12, 'Software'),
-    createData(7,'Item G', 'new', 13, 'Hardware'),
-    createData(8,'Item H', 'used', 10, 'Software'),
-    createData(9,'Item I', 'used', 20, 'Hardware'),
-    createData(10,'Item J', 'new', 5, 'Hardware'),
-    createData(11,'Item K', 'used', 2, 'Hardware'),
-    createData(12,'Item L', 'used', 4, 'Software'),
-];
+interface EquipmentTableProps {
+    equipments: Equipment[];
+    categories: Categories[];
+}
 
-export default function EquipmentTable () {
+const EquipmentTable: React.FC<{ data: EquipmentTableProps }> = ({data}) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -77,7 +58,7 @@ export default function EquipmentTable () {
         setFilterType(event.target.value);
     };
 
-    const filteredRows = rows.filter(row =>
+    const filteredRows = data.equipments.filter(row =>
         row.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         (filterType === "" || row.type === filterType)
     );
@@ -100,8 +81,11 @@ export default function EquipmentTable () {
                         className="min-w-[150px]"
                     >
                         <MenuItem value="">All Types</MenuItem>
-                        <MenuItem value="Hardware">Hardware</MenuItem>
-                        <MenuItem value="Software">Software</MenuItem>
+                        {data.categories.map((item) => (
+                            <MenuItem key={item.id} value={item.name}>
+                                {item.name}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </div>
 
@@ -157,3 +141,5 @@ export default function EquipmentTable () {
         </Paper>
     );
 };
+
+export default EquipmentTable;
