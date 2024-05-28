@@ -12,16 +12,24 @@ import {
     InputLabel, 
     FormControl, 
     IconButton,
-    FormHelperText
+    FormHelperText,
+    SelectChangeEvent
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+interface EquipmentProps {
+    id: number;
+    name: string;
+    condition: string;
+    quantity: number;
+    type: string;
+}
 
-const EditEquipmentModal = (equipment:any) => {
+const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}) => {
     const [open, setOpen] = useState(false);
-    const [select1Value, setSelect1Value] = useState(equipment.condition || '');
-    const [select2Value, setSelect2Value] = useState(equipment.category || '');
-    const [nameValue, setNameValue] = useState(equipment.name || '');
-    const [quantityValue, setQuantityValue] = useState(equipment.quantity || 1);
+    const [conditionValue, setConditionValue] = useState<string|any>(equipment.condition);
+    const [categoryValue, setCategoryValue] = useState<string>(equipment.type);
+    const [nameValue, setNameValue] = useState<string>(equipment.name);
+    const [quantityValue, setQuantityValue] = useState<number>(equipment.quantity || 1);
     const [errors, setErrors] = useState({
         name: '',
         select1: '',
@@ -32,14 +40,18 @@ const EditEquipmentModal = (equipment:any) => {
     const [submitError, setSubmitError] = useState('');
 
     useEffect(() => {
-        setSelect1Value(equipment.condition || '');
-        setSelect2Value(equipment.category || '');
+        setConditionValue(equipment.condition || '');
+        setCategoryValue(equipment.type || '');
         setNameValue(equipment.name || '');
         setQuantityValue(equipment.quantity || 1);
-    }, [equipment]);
+    }, []);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    const handleConditionChange = (event: SelectChangeEvent<{ value: string }>) => {
+        setConditionValue(event.target.value as string);
+    };
 
     const handleSubmit = async () => {
         const newErrors = {
@@ -50,8 +62,8 @@ const EditEquipmentModal = (equipment:any) => {
         };
 
         if (!nameValue) newErrors.name = "Name is required";
-        if (!select1Value) newErrors.select1 = "Condition is required";
-        if (!select2Value) newErrors.select2 = "Category is required";
+        if (!conditionValue) newErrors.select1 = "Condition is required";
+        if (!categoryValue) newErrors.select2 = "Category is required";
         if (quantityValue <= 0) newErrors.quantity = "Quantity must be greater than 0";
 
         if (Object.keys(newErrors).length > 0) {
@@ -67,9 +79,9 @@ const EditEquipmentModal = (equipment:any) => {
             const response = await axios.put(`/api/equipment/${equipment.id}`, {
                 id: equipment.id,
                 name: nameValue,
-                condition: select1Value,
+                condition: conditionValue,
                 quantity: quantityValue,
-                category: select2Value
+                category: categoryValue
             });
 
             console.log('Updated:', response.data);
@@ -114,8 +126,8 @@ const EditEquipmentModal = (equipment:any) => {
                         <InputLabel>Condition</InputLabel>
                         <Select
                             label="Condition"
-                            value={select1Value}
-                            onChange={(e) => setSelect1Value(e.target.value)}
+                            value={conditionValue}
+                            onChange={handleConditionChange}
                             className="w-full"
                             variant="outlined"
                         >
@@ -144,8 +156,8 @@ const EditEquipmentModal = (equipment:any) => {
                         <InputLabel>Select Category</InputLabel>
                         <Select
                             label="Select Category"
-                            value={select2Value}
-                            onChange={(e) => setSelect2Value(e.target.value)}
+                            value={categoryValue}
+                            onChange={(e) => setCategoryValue(e.target.value)}
                             className="w-full"
                             variant="outlined"
                         >

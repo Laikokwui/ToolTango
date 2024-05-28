@@ -40,18 +40,18 @@ const createData = (
 });
 
 const rows = [
-    createData(1,'Item A', 'New', 100, 'Hardware'),
-    createData(2,'Item B', 'Used', 30, 'Software'),
-    createData(3,'Item C', 'New', 50, 'Hardware'),
-    createData(4,'Item D', 'Used', 2, 'Software'),
-    createData(5,'Item E', 'Damaged', 20, 'Software'),
-    createData(6,'Item F', 'Used', 12, 'Software'),
-    createData(7,'Item G', 'New', 13, 'Hardware'),
-    createData(8,'Item H', 'Used', 10, 'Software'),
-    createData(9,'Item I', 'Used', 20, 'Hardware'),
-    createData(10,'Item J', 'New', 5, 'Hardware'),
-    createData(11,'Item K', 'Used', 2, 'Hardware'),
-    createData(12,'Item L', 'Used', 4, 'Software'),
+    createData(1,'Item A', 'new', 100, 'Hardware'),
+    createData(2,'Item B', 'used', 30, 'Software'),
+    createData(3,'Item C', 'new', 50, 'Hardware'),
+    createData(4,'Item D', 'used', 2, 'Software'),
+    createData(5,'Item E', 'damaged', 20, 'Software'),
+    createData(6,'Item F', 'used', 12, 'Software'),
+    createData(7,'Item G', 'new', 13, 'Hardware'),
+    createData(8,'Item H', 'used', 10, 'Software'),
+    createData(9,'Item I', 'used', 20, 'Hardware'),
+    createData(10,'Item J', 'new', 5, 'Hardware'),
+    createData(11,'Item K', 'used', 2, 'Hardware'),
+    createData(12,'Item L', 'used', 4, 'Software'),
 ];
 
 export default function EquipmentTable () {
@@ -126,9 +126,18 @@ export default function EquipmentTable () {
                                 <TableCell>{row.type}</TableCell>
                                 <TableCell>
                                     <div className="flex">
-                                        <EditEquipmentModal equipment={row}/>
+                                        <EditEquipmentModal equipment={{
+                                            id: row.id,
+                                            name: row.name,
+                                            condition: row.condition,
+                                            quantity: row.quantity,
+                                            type: row.type
+                                        }}/>
                                         <div className="ml-2">
-                                            <DeleteEquipmentModal id={row.id}/>
+                                            <DeleteEquipmentModal equipment={{
+                                                id: row.id,
+                                                name: row.name
+                                            }}/>
                                         </div>
                                     </div>
                                 </TableCell>
