@@ -11,5 +11,6 @@ namespace api.Data // Ensure this matches your namespace
         }
 
         public DbSet<Equipment> Equipments { get; set; }
+        public DbSet<Categories> Categories { get; set; }
     }
 }

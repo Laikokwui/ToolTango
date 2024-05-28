@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using api.Data;
 using api.Models;
 
-namespace YourProject.Controllers // Adjust namespace as necessary
+namespace api.Controllers // Adjust namespace as necessary
 {
     [Route("api/[controller]")]
     [ApiController]
