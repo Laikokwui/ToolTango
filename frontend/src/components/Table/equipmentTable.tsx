@@ -12,7 +12,8 @@ import {
     Paper, 
     TextField, 
     MenuItem, 
-    Select
+    Select, 
+    Skeleton
 } from '@mui/material';
 import { TablePagination, SelectChangeEvent } from '@mui/material';
 import EditEquipmentModal from '../Modal/EditEquipmentModal';
@@ -22,7 +23,7 @@ interface Equipment {
     id: number,
     name: string,
     condition: string,
-    quantity: number
+    quantity: number,
     categoryId: number,
 }
 
@@ -33,7 +34,8 @@ interface Categories {
 
 const EquipmentTable = () => {
     const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
-	const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // pagination
     const [page, setPage] = useState(0);
@@ -51,7 +53,7 @@ const EquipmentTable = () => {
         setPage(newPage);
     };
 
-    // pagination chnage number of rows
+    // pagination change number of rows
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
@@ -62,24 +64,19 @@ const EquipmentTable = () => {
         setSearchQuery(event.target.value);
     };
 
-
     // get category name by id
     const getCategoryNameById = (categoryId: number): string => {
         const category = categoriesList.find(category => category.id === categoryId);
-
         return category ? category.name : " ";
     };
-
 
     // set filter
     const handleFilterChange = (event: SelectChangeEvent<string>) => {
         const selectedValue = event.target.value;
-
         if (selectedValue !== "-1") {
             const categoryId = parseInt(selectedValue);
             setFilterTypeId(categoryId);
             const filter = getCategoryNameById(categoryId);
-
             if (filter !== " ") {
                 setFilterType(filter);
             }
@@ -96,29 +93,33 @@ const EquipmentTable = () => {
     );
 
     // get equipments
-    const getEquipments = async ()=> {
-		try {
-			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipment');
-			setEquipmentList(response.data)
-		} catch (error) {
-			throw new Error("error fetch equipmnts")
-		}
-	}
+    const getEquipments = async () => {
+        try {
+            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/equipment');
+            setEquipmentList(response.data);
+        } catch (error) {
+            console.error("Error fetching equipments", error);
+        }
+    }
 
     // get categories
-	const getCategories = async ()=> {
-		try {
-			const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
-			setCategoriesList(response.data)
-		} catch (error) {
-			throw new Error("error fetch categories")
-		}
-	}
+    const getCategories = async () => {
+        try {
+            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
+            setCategoriesList(response.data);
+        } catch (error) {
+            console.error("Error fetching categories", error);
+        }
+    }
 
-	useEffect(() => {
-		getEquipments();
-		getCategories();
-	}, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            await Promise.all([getEquipments(), getCategories()]);
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
 
     return (
         <Paper className="p-4">
@@ -145,55 +146,72 @@ const EquipmentTable = () => {
                         ))}
                     </Select>
                 </div>
-
             </div>
             <TableContainer component={Paper} className="shadow-md">
                 <Table>
                     <TableHead>
-                    <TableRow>
-                        <TableCell className="font-semibold">Name</TableCell>
-                        <TableCell className="font-semibold">Condition</TableCell>
-                        <TableCell className="font-semibold">Quantity</TableCell>
-                        <TableCell className="font-semibold">Type</TableCell>
-                        <TableCell className="font-semibold">Actions</TableCell>
-                    </TableRow>
+                        <TableRow>
+                            <TableCell className="font-semibold">Name</TableCell>
+                            <TableCell className="font-semibold">Condition</TableCell>
+                            <TableCell className="font-semibold">Quantity</TableCell>
+                            <TableCell className="font-semibold">Type</TableCell>
+                            <TableCell className="font-semibold">Actions</TableCell>
+                        </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.name}</TableCell>
-                                <TableCell>{row.condition}</TableCell>
-                                <TableCell>{row.quantity}</TableCell>
-                                <TableCell>{getCategoryNameById(row.categoryId)}</TableCell>
-                                <TableCell>
-                                    <div className="flex">
-                                        <EditEquipmentModal equipment={{
-                                            id: row.id,
-                                            name: row.name,
-                                            condition: row.condition,
-                                            quantity: row.quantity,
-                                            categoryId: row.categoryId
-                                        }}/>
-                                        <div className="ml-2">
-                                            <DeleteEquipmentModal equipment={{
-                                                id: row.id,
-                                                name: row.name
-                                            }}/>
+                        {loading ? (
+                            Array.from(new Array(rowsPerPage)).map((_, index) => (
+                                <TableRow key={index}>
+                                    <TableCell><Skeleton variant="text" /></TableCell>
+                                    <TableCell><Skeleton variant="text" /></TableCell>
+                                    <TableCell><Skeleton variant="text" /></TableCell>
+                                    <TableCell><Skeleton variant="text" /></TableCell>
+                                    <TableCell><Skeleton variant="text" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{row.name}</TableCell>
+                                    <TableCell>{row.condition}</TableCell>
+                                    <TableCell>{row.quantity}</TableCell>
+                                    <TableCell>{getCategoryNameById(row.categoryId)}</TableCell>
+                                    <TableCell>
+                                        <div className="flex">
+                                            <EditEquipmentModal 
+                                                equipment={{ 
+                                                    id: row.id, 
+                                                    name: row.name,
+                                                    condition: row.condition,
+                                                    quantity: row.quantity,
+                                                    categoryId: row.categoryId
+                                                }} 
+                                            />
+                                            <div className="ml-2">
+                                                <DeleteEquipmentModal 
+                                                    equipment={{ 
+                                                        id: row.id, 
+                                                        name: row.name 
+                                                    }} 
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
-                <TablePagination
-                    component="div"
-                    count={filteredRows.length}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                {!loading && (
+                    <TablePagination
+                        component="div"
+                        count={filteredRows.length}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                )}
             </TableContainer>
         </Paper>
     );

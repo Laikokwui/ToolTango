@@ -30,12 +30,12 @@ interface Categories {
     name: string
 }
 
-const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}) => {
+const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({ equipment }) => {
     const [open, setOpen] = useState(false);
 
     const [nameValue, setNameValue] = useState<string>(equipment.name);
-    const [conditionValue, setConditionValue] = useState<string|any>(equipment.condition);
-    const [quantityValue, setQuantityValue] = useState<number>(equipment.quantity || 1);
+    const [conditionValue, setConditionValue] = useState<string>(equipment.condition);
+    const [quantityValue, setQuantityValue] = useState<number>(equipment.quantity);
     const [categoryIdValue, setCategoryIdValue] = useState<number>(equipment.categoryId);
 
     const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
@@ -53,14 +53,14 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const handleConditionChange = (event: SelectChangeEvent<{ value: string }>) => {
+    const handleConditionChange = (event: SelectChangeEvent<string>) => {
         setConditionValue(event.target.value as string);
     };
 
-    const editEquipment = async (e:EquipmentProps) => {
+    const editEquipment = async () => {
         try {
-            const response = await axios.put(`https://tooltangoapi.azurewebsites.net/api/equipment/${e.id}`, {
-                id: e.id,
+            const response = await axios.put(`https://tooltangoapi.azurewebsites.net/api/equipment/${equipment.id}`, {
+                id: equipment.id,
                 name: nameValue,
                 condition: conditionValue,
                 quantity: quantityValue,
@@ -95,39 +95,18 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
         }
 
         setLoading(true);
-        console.log("Edit Item")
         setSubmitError('');
 
-        setLoading(true);
-        setSubmitError('');
-
-        console.log({
-            id: equipment.id,
-            name: nameValue,
-            condition: conditionValue,
-            quantity: quantityValue,
-            categoryId: categoryIdValue
-        })
-
-        let result = await editEquipment({
-            id: equipment.id,
-            name: nameValue,
-            condition: conditionValue,
-            quantity: quantityValue,
-            categoryId: categoryIdValue
-        })
+        const result = await editEquipment();
 
         if (result) {
             handleClose();
-            setLoading(false);
             window.location.reload();
         } else {
             setSubmitError('Failed to submit the form. Please try again.');
             console.error('Submit error:', errors);
             setLoading(false);
         }
-
-        
     };
 
     const getCategories = async () => {
@@ -135,18 +114,18 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
             const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
             setCategoriesList(response.data)
         } catch (error) {
-            throw new Error("error fetch categories")
+            console.error("Error fetching categories", error);
         }
     }
 
     useEffect(() => {
-        setNameValue(equipment.name || '');
-        setConditionValue(equipment.condition || '');
-        setQuantityValue(equipment.quantity || 1);
+        setNameValue(equipment.name);
+        setConditionValue(equipment.condition);
+        setQuantityValue(equipment.quantity);
         setCategoryIdValue(equipment.categoryId);
-        
+
         getCategories();
-    }, []);
+    }, [equipment]);
 
     return (
         <div className="mb-5">
@@ -222,7 +201,6 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({equipment}
                         {errors.categoryId && <FormHelperText>{errors.categoryId}</FormHelperText>}
                     </FormControl>
                     
-                    <br/>
                     {submitError && <FormHelperText error>{submitError}</FormHelperText>}
                     <br/>
 
