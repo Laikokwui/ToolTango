@@ -30,7 +30,7 @@ interface Categories {
     name: string
 }
 
-const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({ equipment }) => {
+const EditEquipmentModal: React.FC<{ equipment: EquipmentProps, categories: Categories[] }> = ({ equipment ,categories }) => {
     const [open, setOpen] = useState(false);
 
     const [nameValue, setNameValue] = useState<string>(equipment.name);
@@ -38,7 +38,7 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({ equipment
     const [quantityValue, setQuantityValue] = useState<number>(equipment.quantity);
     const [categoryIdValue, setCategoryIdValue] = useState<number>(equipment.categoryId);
 
-    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+    const [categoriesList, setCategoriesList] = useState<Categories[]>(categories);
 
     const [errors, setErrors] = useState({
         name: '',
@@ -109,22 +109,13 @@ const EditEquipmentModal: React.FC<{ equipment: EquipmentProps }> = ({ equipment
         }
     };
 
-    const getCategories = async () => {
-        try {
-            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
-            setCategoriesList(response.data)
-        } catch (error) {
-            console.error("Error fetching categories", error);
-        }
-    }
+    
 
     useEffect(() => {
         setNameValue(equipment.name);
         setConditionValue(equipment.condition);
         setQuantityValue(equipment.quantity);
         setCategoryIdValue(equipment.categoryId);
-
-        getCategories();
     }, [equipment]);
 
     return (

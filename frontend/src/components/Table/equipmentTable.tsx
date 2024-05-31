@@ -186,6 +186,7 @@ const EquipmentTable = () => {
                                                     quantity: row.quantity,
                                                     categoryId: row.categoryId
                                                 }} 
+                                                categories={categoriesList}
                                             />
                                             <div className="ml-2">
                                                 <DeleteEquipmentModal 
