@@ -30,7 +30,7 @@ interface Categories {
     name: string
 }
 
-export default function AddEquipmentModal() {
+const AddEquipmentModal: React.FC<{ categories: Categories[] }> = ({ categories }) => {
     const [open, setOpen] = useState(false);
 
     const [nameValue, setNameValue] = useState<string>('');
@@ -38,21 +38,7 @@ export default function AddEquipmentModal() {
     const [quantityValue, setQuantityValue] = useState<number>(1);
     const [categoryIdValue, setCategoryIdValue] = useState<number>(-1);
 
-    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
-
-    const getCategories = async () => {
-        try {
-            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
-            setCategoriesList(response.data)
-        } catch (error) {
-            throw new Error("error fetch categories")
-        }
-    }
-
-    useEffect(() => {
-		getCategories();
-	}, []);
-    
+    const [categoriesList, setCategoriesList] = useState<Categories[]>(categories);
 
     const [errors, setErrors] = useState({
         name: '',
@@ -205,3 +191,5 @@ export default function AddEquipmentModal() {
         </div>
     );
 };
+
+export default AddEquipmentModal;
