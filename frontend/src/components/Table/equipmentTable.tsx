@@ -32,9 +32,9 @@ interface Categories {
     name: string
 }
 
-const EquipmentTable = () => {
+const EquipmentTable: React.FC<{  categories: Categories[] }> = ({ categories }) => {
     const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
-    const [categoriesList, setCategoriesList] = useState<Categories[]>([]);
+    const [categoriesList, setCategoriesList] = useState<Categories[]>(categories);
     const [loading, setLoading] = useState(true);
 
     // pagination
@@ -102,20 +102,10 @@ const EquipmentTable = () => {
         }
     }
 
-    // get categories
-    const getCategories = async () => {
-        try {
-            const response = await axios.get('https://tooltangoapi.azurewebsites.net/api/categories');
-            setCategoriesList(response.data);
-        } catch (error) {
-            console.error("Error fetching categories", error);
-        }
-    }
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            await Promise.all([getEquipments(), getCategories()]);
+            await Promise.all([getEquipments()]);
             setLoading(false);
         };
         fetchData();
